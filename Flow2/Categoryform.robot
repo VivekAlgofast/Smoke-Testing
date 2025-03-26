@@ -1,0 +1,54 @@
+*** Settings ***
+Library           SeleniumLibrary
+Library    XML
+Library           OperatingSystem
+Library           pymysql
+Library           DatabaseLibrary
+Resource          ../Mainsuite/Variables.robot
+*** Keywords ***
+Category Form Keyword
+    Sleep  3s
+    Wait Until Element Is Enabled    xpath=//a[.//span[text()='Administration']]   20s
+    Click Element    xpath=//a[.//span[text()='Administration']]
+    Mouse Over    xpath=//span[normalize-space()='Master Data']
+    Mouse Over   xpath=//span[normalize-space()='Enquiry Masters']
+    Click Element    xpath=//span[normalize-space()='Category']
+    Sleep   3s
+    Click Element    xpath=//button[@aria-label='Add New']
+    Wait Until Element Is Visible    xpath=//input[@id='category_master']
+    Input Text    xpath=//input[@id='category_master']   ${Category_value}
+    Click Button    xpath=//button[normalize-space()='Submit']
+    Sleep   3s
+     ${name_entered}    Get Value    css=#category_master
+    Connect To Database    pymysql    ${DB_NAME}    ${DB_USER}    ${DB_PASSWORD}    ${DB_HOST}    ${DB_PORT}
+    ${company_db}=    Set Variable    ${Cdb_name}  
+    Connect To Database    pymysql    ${company_db}    ${DB_USER}    ${DB_PASSWORD}    ${DB_HOST}    ${DB_PORT} 
+    ${sql_query}=    Set Variable    SELECT name FROM enquiry_category_master WHERE name='${name_entered}' LIMIT 1;
+    Log To Console    ${sql_query}
+    ${result} =    Execute Sql String    ${sql_query}
+    Run Keyword If    '${result}' == '[]'    Fail    "Value '${name_entered}' was not found in the database"
+    Log To Console    "Value '${name_entered}' found in the database successfully"
+    Disconnect From Database
+    
+Edit and Delete Category
+     Click Element    xpath=//button[@class='MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-bte7tm']//*[name()='svg']
+    Sleep   3s
+    Click Element    xpath=//div[@role='gridcell']//button[@type='button']//*[name()='svg']
+    Click Element    xpath=//p[normalize-space()='Edit']
+    Wait Until Element Is Visible    xpath=//input[@id='category_master']
+    Input Text    xpath=//input[@id='category_master']  ${Category_value}
+    Click Button    xpath=//button[normalize-space()='Submit']
+    Sleep    2s
+    Click Element    xpath=//div[@role='gridcell']//button[@type='button']//*[name()='svg']
+    Click Element    xpath=//p[normalize-space()='Delete']
+    Wait Until Element Is Visible    xpath=//button[normalize-space()='Delete']
+    Click Button    xpath=//button[normalize-space()='Delete']
+    Click Element    xpath=//button[normalize-space()='Cancel']
+
+Adding Category field again
+    Sleep  3s
+    Click Element    xpath=//button[@aria-label='Add New']
+    Wait Until Element Is Visible    //input[@id='category_master']
+    Input Text    //input[@id='category_master']   ${Category_value}
+    Click Button    xpath=//button[normalize-space()='Submit']
+    Click Element    xpath=//button[@class='MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-bte7tm']//*[name()='svg']
