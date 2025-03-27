@@ -1,6 +1,6 @@
 chrome-win64/
 log.html
-output.html
+output.xml
 report.html
-Automation/interactive_console_output.xml
+interactive_console_output.xml
 robotenv/
